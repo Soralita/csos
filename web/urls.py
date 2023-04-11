@@ -15,10 +15,22 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 from web.views import index
 
 urlpatterns = [
-    path("", index.index, name="mobile_index"),
+    path("", index.index, name="index"),
+
+    #前端登录退出的路由
+    path('login',index.login,name="web_login"),
+    path('login',index.dologin,name='web_dologin'),
+    path('logout',index.logout,name='web_logout'),
+    #验证码: 不打算做path('verify',index.verify,name='web_verify')
+
+
+    #为URL路由器添加请求前缀 web/反是带web前缀的 才进行
+    path("web/",include([
+        path("", index.webindex, name="web_index"), #前台大堂点餐首页
+    ]))
 ]
