@@ -3,4 +3,4 @@ from django.http import HttpResponse
 # Create your views here.
 
 def index(request):
-    return HttpResponse("欢迎进入后台管理端！")
+    return render(request,'myadmin/index/index.html')
