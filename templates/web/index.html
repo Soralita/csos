@@ -47,7 +47,7 @@
             <span class="icon-bar"></span>
           </button>
           <a class="navbar-brand" href="#">
-            <span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span> <span style="font-weight:bold;">田老师红烧肉</span><span style="font-size:14px;">（朝阳将台路店）</span></a>
+            <span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span> <span style="font-weight:bold;">凉虾点餐</span><span style="font-size:14px;">（合川区）</span></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
@@ -57,8 +57,8 @@
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li><a href="../navbar/">
-                    <span class="glyphicon glyphicon-user" aria-hidden="true"> 张无忌</a></li>
-            <li><a href="../navbar-static-top/">退出</a></li>
+                    <span class="glyphicon glyphicon-user" aria-hidden="true"> {{ request.session.webuser.nickname}}</a></li>
+            <li><a href="{% url 'web_logout' %}">退出</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -78,34 +78,20 @@
                             <th width="45">单价</th>
                             <th>删除</th>
                         </tr>
+
+                    {% for product in request.session.cartlist.values %}
                         <tr>
-                            <td>1</td>
-                            <td>梅菜扣肉+番茄鸡蛋</td>
-                            <td class="num"><i class="btn btn-default btn-xs"> - </i><span>1</span><i class="btn btn-default btn-xs"> + </i></td>
-                            <td class="price">38.00</td>
-                            <td><a href="#" class="btn btn-danger btn-xs" role="button">删除</a></td>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ product.name}}</td>
+                            <td class="num">
+                                <i onclick="window.location='{% url 'web_cart_change' %}?pid={{ product.id }}&num={{ product.num|add:-1 }}'" class="btn btn-default btn-xs"> - </i>
+                                <span>{{ product.num }}</span>
+                                <i onclick="window.location='{% url 'web_cart_change' %}?pid={{ product.id }}&num={{ product.num|add:1 }}'" class="btn btn-default btn-xs"> + </i></td>
+                            <td class="price">{{ product.price }}</td>
+                            <td><a href="{% url 'web_cart_delete' product.id  %}" class="btn btn-danger btn-xs" role="button">删除</a></td>
                         </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>梅菜扣肉</td>
-                            <td class="num"><i class="btn btn-default btn-xs"> - </i><span>1</span><i class="btn btn-default btn-xs"> + </i></td>
-                            <td class="price">25.00</td>
-                            <td><a href="#" class="btn btn-danger btn-xs" role="button">删除</a></td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>梅菜扣肉</td>
-                            <td class="num"><i class="btn btn-default btn-xs"> - </i><span>1</span><i class="btn btn-default btn-xs"> + </i></td>
-                            <td class="price">25.00</td>
-                            <td><a href="#" class="btn btn-danger btn-xs" role="button">删除</a></td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>梅菜扣肉</td>
-                            <td class="num"><i class="btn btn-default btn-xs"> - </i><span>1</span><i class="btn btn-default btn-xs"> + </i></td>
-                            <td class="price">25.00</td>
-                            <td><a href="#" class="btn btn-danger btn-xs" role="button">删除</a></td>
-                        </tr>
+                    {% endfor %}
+
                     </table>
                     
                     <li class="list-group-item">
@@ -121,213 +107,34 @@
                     </li>
 
                     <div class="panel-footer" style="height:50px">
-                        <div style="width:120px;float:left;margin:5px 0px;">合计：￥<span style="color:red;font-weight:bold;">168.00</span> 元</div>
-                        <button type="submit" class="btn btn-warning" style="width:130px;float:right">结 &nbsp; 算</button>
+                        <div style="width:120px;float:left;margin:5px 0px;">合计：￥<span style="color:red;font-weight:bold;">{{ request.session.total_money }}</span> 元</div>
+                        <button type="submit" class="btn btn-warning" style="width:120px;float:right">结 &nbsp; 算</button>
+                         <button onclick="window.location='{% url 'web_cart_clear' %}' "  type="button"  class="btn btn-danger" style="width:50px;float:right">清空</button>
                     </div>
              
             </div>
         </div>
         <div class="col-md-8">
             <!--标签页内容-->
-            <h5 style="padding-bottom:9px;border-bottom:1px solid #eee;color:#BB3D00"><span class="glyphicon glyphicon-list" aria-hidden="true"> 双拼套餐：</h5>
+            {% for key,category in categorylist %}
+
+                <h5 style="padding-bottom:9px;border-bottom:1px solid #eee;color:#BB3D00"><span class="glyphicon glyphicon-list" aria-hidden="true"> {{ category.name }}</span></h5>
             <div class="row shoplist">
+                {% for product in category.pids %}
                 <div class="col-sm-6 col-md-3">
                     <div class="thumbnail">
-                      <img src="{% static 'web/images/timg.jpg' %}" alt="...">
+                      <img src="{% static 'uploads/product/'%}{{ product.cover_pic }}" width="150" alt="...">
                       <div class="caption">
-                        <h6>梅菜扣肉+番茄鸡蛋</h6>
-                        <div class="bn">￥<span class="price">25.00</span>元</a>
-                        <a href="#" class="btn btn-warning btn-xs pull-right" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></div>
+                        <h6>{{ product.name }}</h6>
+                        <div class="bn">￥<span class="price">{{ product.price }}</span>元</a>
+                        <a href="{% url 'web_cart_add' product.id %}" class="btn btn-warning btn-xs pull-right" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></div>
                       </div>
                     </div>
                 </div>
-                <div class="col-sm-6 col-md-3">
-                    <div class="thumbnail">
-                      <img src="{% static 'web/images/timg.jpg' %}" alt="...">
-                      <div class="caption">
-                        <h6>梅菜扣肉+番茄鸡蛋</h6>
-                        <div class="bn">￥<span class="price">25.00</span>元
-                        <a href="#" class="btn btn-warning btn-xs pull-right" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></div>
-                      </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <div class="thumbnail">
-                      <img src="{% static 'web/images/timg.jpg' %}" alt="...">
-                      <div class="caption">
-                        <h6>梅菜扣肉+番茄鸡蛋</h6>
-                        <div class="bn">￥<span class="price">25.00</span>元
-                        <a href="#" class="btn btn-warning btn-xs pull-right" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></div>
-                      </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <div class="thumbnail">
-                      <img src="{% static 'web/images/timg.jpg' %}" alt="...">
-                      <div class="caption">
-                        <h6>梅菜扣肉+番茄鸡蛋</h6>
-                        <div class="bn">￥<span class="price">25.00</span>元
-                        <a href="#" class="btn btn-warning btn-xs pull-right" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></div>
-                      </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <div class="thumbnail">
-                      <img src="{% static 'web/images/timg.jpg' %}" alt="...">
-                      <div class="caption">
-                        <h6>梅菜扣肉+番茄鸡蛋</h6>
-                        <div class="bn">￥<span class="price">25.00</span>元
-                        <a href="#" class="btn btn-warning btn-xs pull-right" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></div>
-                      </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <div class="thumbnail">
-                      <img src="{% static 'web/images/timg.jpg' %}" alt="...">
-                      <div class="caption">
-                        <h6>梅菜扣肉+番茄鸡蛋</h6>
-                        <p><a href="#" class="btn btn-default btn-xs" role="button">￥<span style="color:red">25.00</span>元</a> &nbsp; 
-                        <a href="#" class="btn btn-warning btn-xs" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></p>
-                      </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <div class="thumbnail">
-                      <img src="{% static 'web/images/timg.jpg' %}" alt="...">
-                      <div class="caption">
-                        <h6>梅菜扣肉+番茄鸡蛋</h6>
-                        <p><a href="#" class="btn btn-default btn-xs" role="button">￥<span style="color:red">25.00</span>元</a> &nbsp; 
-                        <a href="#" class="btn btn-warning btn-xs" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></p>
-                      </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <div class="thumbnail">
-                      <img src="{% static 'web/images/timg.jpg' %}" alt="...">
-                      <div class="caption">
-                        <h6>梅菜扣肉+番茄鸡蛋</h6>
-                        <p><a href="#" class="btn btn-default btn-xs" role="button">￥<span style="color:red">25.00</span>元</a> &nbsp; 
-                        <a href="#" class="btn btn-warning btn-xs" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></p>
-                      </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <div class="thumbnail">
-                      <img src="{% static 'web/images/timg.jpg' %}" alt="...">
-                      <div class="caption">
-                        <h6>梅菜扣肉+番茄鸡蛋</h6>
-                        <p><a href="#" class="btn btn-default btn-xs" role="button">￥<span style="color:red">25.00</span>元</a> &nbsp; 
-                        <a href="#" class="btn btn-warning btn-xs" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></p>
-                      </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <div class="thumbnail">
-                      <img src="{% static 'web/images/timg.jpg' %}" alt="...">
-                      <div class="caption">
-                        <h6>梅菜扣肉+番茄鸡蛋</h6>
-                        <p><a href="#" class="btn btn-default btn-xs" role="button">￥<span style="color:red">25.00</span>元</a> &nbsp; 
-                        <a href="#" class="btn btn-warning btn-xs" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></p>
-                      </div>
-                    </div>
-                </div>
-            </div>   
-            <h4 style="padding-bottom:9px;border-bottom:1px solid #eee;"><span class="glyphicon glyphicon-cutlery" aria-hidden="true"> 盖饭系列：</h4>
-            <div class="row">
-                <div class="col-sm-6 col-md-3">
-                    <a href="#" class="thumbnail">
-                        <img src="{% static 'web/images/timg.jpg' %}"
-                             alt="通用的占位符缩略图">
-                    </a>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <a href="#" class="thumbnail">
-                        <img src="{% static 'web/images/timg.jpg' %}"
-                             alt="通用的占位符缩略图">
-                    </a>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <a href="#" class="thumbnail">
-                        <img src="{% static 'web/images/timg.jpg' %}"
-                             alt="通用的占位符缩略图">
-                    </a>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <a href="#" class="thumbnail">
-                        <img src="{% static 'web/images/timg.jpg' %}"
-                             alt="通用的占位符缩略图">
-                    </a>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <a href="#" class="thumbnail">
-                        <img src="{% static 'web/images/timg.jpg' %}"
-                             alt="通用的占位符缩略图">
-                    </a>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <a href="#" class="thumbnail">
-                        <img src="{% static 'web/images/timg.jpg' %}"
-                             alt="通用的占位符缩略图">
-                    </a>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <a href="#" class="thumbnail">
-                        <img src="{% static 'web/images/timg.jpg' %}"
-                             alt="通用的占位符缩略图">
-                    </a>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <a href="#" class="thumbnail">
-                        <img src="{% static 'web/images/timg.jpg' %}"
-                             alt="通用的占位符缩略图">
-                    </a>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <a href="#" class="thumbnail">
-                        <img src="{% static 'web/images/timg.jpg' %}"
-                             alt="通用的占位符缩略图">
-                    </a>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <a href="#" class="thumbnail">
-                        <img src="{% static 'web/images/timg.jpg' %}"
-                             alt="通用的占位符缩略图">
-                    </a>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <a href="#" class="thumbnail">
-                        <img src="{% static 'web/images/timg.jpg' %}"
-                             alt="通用的占位符缩略图">
-                    </a>
-                </div>
-            </div>   
-            <h4 style="padding-bottom:9px;border-bottom:1px solid #eee;"><span class="glyphicon glyphicon-cutlery" aria-hidden="true"> 汤/饮料：</h4>
-            <div class="row">
-                <div class="col-sm-6 col-md-3">
-                    <a href="#" class="thumbnail">
-                        <img src="{% static 'web/images/timg.jpg' %}"
-                             alt="通用的占位符缩略图">
-                    </a>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <a href="#" class="thumbnail">
-                        <img src="{% static 'web/images/timg.jpg' %}"
-                             alt="通用的占位符缩略图">
-                    </a>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <a href="#" class="thumbnail">
-                        <img src="{% static 'web/images/timg.jpg' %}"
-                             alt="通用的占位符缩略图">
-                    </a>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <a href="#" class="thumbnail">
-                        <img src="{% static 'web/images/timg.jpg' %}"
-                             alt="通用的占位符缩略图">
-                    </a>
-                </div>
+                {% endfor %}
             </div>
+            {% endfor %}
+
             
         </div>
     </div>
