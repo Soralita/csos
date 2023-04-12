@@ -37,7 +37,21 @@
                     
                     <div class="form-group">
                         <p class="login-box-msg" style="color:red">
-                            登录账号或密码错误！
+
+                            {% if request.GET.errinfo == '1' %}
+                                请选择所在店铺名称
+                            {% elif request.GET.errinfo == '2' %}
+                                验证码错误
+                            {% elif request.GET.errinfo == '3' %}
+                                登录账号不存在
+                            {% elif request.GET.errinfo == '4' %}
+                                无效的登录账号
+                            {% elif request.GET.errinfo == '5' %}
+                                登录账号或密码错误！
+
+                            {% endif %}
+
+
                         </p>
                     </div>
                 </form>
