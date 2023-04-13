@@ -44,6 +44,8 @@ urlpatterns = [
         path('orders/insert',orders.insert,name='web_orders_insert'),
         path('orders/detail',orders.detail,name='web_orders_detail'),
         path('orders/status',orders.status,name='web_orders_status'),
+        path('orders/speak',orders.speak,name='web_orders_speak'),
+
 
     ]))
 ]

@@ -129,6 +129,7 @@ class Orders(models.Model):
     payment_status = models.IntegerField(default=1)   #支付状态:1未支付/2已支付/3已退款
     create_at = models.DateTimeField(default=datetime.now)  #创建时间
     update_at = models.DateTimeField(default=datetime.now)  #修改时间
+    flow_num=models.IntegerField()
 
     class Meta:
         db_table = "orders"  # 更改表名

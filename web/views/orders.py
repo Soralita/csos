@@ -1,4 +1,5 @@
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.urls import reverse
@@ -8,6 +9,7 @@ from myadmin.models import Orders,OrderDetail,Product,Payment
 
 from myadmin.models import User, Category, Product
 
+from csos import queuing
 
 # Create your views here.
 
@@ -56,6 +58,13 @@ def insert(request):
 
     try:
         #订单添加
+        # 查询当天订单的数聊
+        now = datetime.now().date()
+        todayList=Orders.objects.filter(create_at__gt=now)
+        flow_num=len(todayList)+1
+        if flow_num>200:
+            flow_num=flow_num-200
+
         od = Orders()
         od.member_id=1
         od.user_id=request.session['webuser']['id']
@@ -64,6 +73,7 @@ def insert(request):
         od.payment_status = 2    # 支付状态:1未支付/2已支付/3已退款
         od.create_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         od.update_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        od.flow_num=flow_num
         od.save()
 
         #执行支付信息添加
@@ -110,6 +120,18 @@ def status(request):
         ob=Orders.objects.get(id=oid)
         ob.status=request.GET["status"]
         ob.save()
+        return HttpResponse("Y")
+    except Exception as err:
+        print(err)
+        return HttpResponse("N")
+
+def speak(request):
+    try:
+        flow_num = request.GET.get("flow_num",-1)
+        if flow_num!=-1:
+            queuing.play_audio(flow_num)
+        else:
+            return HttpResponse("N")
         return HttpResponse("Y")
     except Exception as err:
         print(err)

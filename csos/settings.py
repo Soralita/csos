@@ -134,3 +134,6 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# audio 数据资源文件夹
+STATIC_AUDIO_FILE=r"C:\Users\Soral\PycharmProjects\csos\static\audio"

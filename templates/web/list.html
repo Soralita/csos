@@ -84,7 +84,8 @@
                 </div>
                 <table class="table table-striped">
                         <tr>
-                            <th width="60">订单号</th>
+                            <th width="60">订单id</th>
+                            <th width="60">流水号</th>
                             <th>会员</th>
                             <th>操作员</th>
                             <th>金额</th>
@@ -97,6 +98,7 @@
                         {% for vo in orderslist %}
                         <tr class="oid{{vo.id}}">
                             <td>{{ vo.id }}</td>
+                             <th width="60">{{ vo.flow_num }}</th>
                             <td>id203</td>
                             <td>{{vo.nickname}}</td>
                             <td class="price">{{vo.money}}</td>
@@ -128,6 +130,7 @@
                                 <button type="button" onclick="doShow({{vo.id}})" class="btn btn-warning btn-xs" role="button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span> 详情</button>
                                 {% if vo.status == 1%}
                                 <button type="button" onclick="doChangeStatus({{vo.id}},3)" class="btn btn-info btn-xs" role="button"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 完成</button>
+                                    <button type="button" onclick="doSpeak({{ vo.id }},{{vo.flow_num}})" class="btn btn-info btn-xs" role="button"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 叫号</button>
                                 <button type="button" onclick="doChangeStatus({{vo.id}},2)" class="btn btn-danger btn-xs" role="button"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> 删除</button>
                                 {% endif %}
                             </td>
@@ -204,6 +207,19 @@
                     $('#myModal').modal({keyboard:false})
                 },
             });
+        }
+        function doSpeak(id,flow_num){
+            $.ajax({
+                type:'get',
+                url:"{% url 'web_orders_speak' %}",
+                dataType:'text',
+                data:{flow_num:flow_num,oid:id},
+                async: false,
+                success:function(res){
+                    console.log("叫号成功")
+                },
+            });
+
         }
 
         function doChangeStatus(id,s){
