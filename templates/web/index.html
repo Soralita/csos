@@ -25,11 +25,11 @@
             font-size:14px;
             text-align:center;
         }
-        
-        table tr td{font-size:11px;} 
+
+        table tr td{font-size:11px;}
         table tr td.price{color:red;}
         table tr td.num span{color:red;padding:0px 5px}
-        table tr td.num i{border-width:0px;background-color:#ddd;}  
+        table tr td.num i{border-width:0px;background-color:#ddd;}
 
         div.shoplist div.bn{font-size:12px;line-height:25px;}
         div.shoplist div.bn span.price{color:red;}
@@ -46,14 +46,14 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">
+          <a class="navbar-brand" href="{% url 'web_index' %}">
             <span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span> <span style="font-weight:bold;">凉虾点餐</span><span style="font-size:14px;">（合川区）</span></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="#">堂吃点餐</a></li>
-            <li><a href="#about">当前订单</a></li>
-            <li><a href="#contact">历史订单</a></li>
+            <li class="active"><a href="{% url 'web_index' %}">堂吃点餐</a></li>
+            <li><a href="{% url 'web_orders_index' 1 %}?status=1">当前订单</a></li>
+            <li><a href="{% url 'web_orders_index' 1 %}?status=3">历史订单</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li><a href="../navbar/">
@@ -108,7 +108,7 @@
 
                     <div class="panel-footer" style="height:50px">
                         <div style="width:120px;float:left;margin:5px 0px;">合计：￥<span style="color:red;font-weight:bold;">{{ request.session.total_money }}</span> 元</div>
-                        <button type="submit" class="btn btn-warning" style="width:120px;float:right">结 &nbsp; 算</button>
+                        <button type="submit" onclick="dosubmit()" class="btn btn-warning" style="width:120px;float:right">结 &nbsp; 算</button>
                          <button onclick="window.location='{% url 'web_cart_clear' %}' "  type="button"  class="btn btn-danger" style="width:50px;float:right">清空</button>
                     </div>
              
@@ -142,6 +142,45 @@
 
     <script src="{% static 'web/js/jquery.min.js' %}"></script>
     <script src="{% static 'web/js/bootstrap.min.js' %}"></script>
+    <script>
+        //执行订单处理
+        function dosubmit(){
+            //判断购物车是否没有菜品
+            if($("table.table-striped tr").length==1){
+                alert("购物车中没有商品选择!")
+                return;
+            }
 
+            if(!window.confirm("确定进行结算吗?")){
+                return;
+            }
+            //获取要提交的数据
+            var ptype=$("input[name='ptype']:checked").val();
+            var bank =$("input[name='bank']:checked").val();
+
+            //alert("提交订单"+ptype+bank);
+            //执行ajax提交订单
+            $.ajax({
+                type:"get",
+                url:"{% url 'web_orders_insert' %}" ,
+                dataType:"text",
+                data:{ptype:ptype,bank:bank},
+                success:function (res){
+                    if(res=="Y"){
+                        alert("订单添加成功");
+                        window.location.href="{% url 'web_index' %}";
+                    }else{
+                        alert("订单处理失败");
+                    }
+
+                }
+
+            })
+
+
+
+        }
+
+    </script>
 </body>
 </html>
