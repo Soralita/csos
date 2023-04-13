@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from web.views import index
+from web.views import index, orders
 from web.views import cart
 
 urlpatterns = [
@@ -38,5 +38,12 @@ urlpatterns = [
         path('cart/delete/<str:pid>',cart.delete,name="web_cart_delete"),
         path('cart/clear',cart.clear,name="web_cart_clear"),
         path('cart/change',cart.change,name="web_cart_change"),
+
+        #订单处理路由
+        path('orders/<int:pIndex>',orders.index,name='web_orders_index'),
+        path('orders/insert',orders.insert,name='web_orders_insert'),
+        path('orders/detail',orders.detail,name='web_orders_detail'),
+        path('orders/status',orders.status,name='web_orders_status'),
+
     ]))
 ]

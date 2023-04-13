@@ -1,0 +1,116 @@
+from django.core.paginator import Paginator
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from django.urls import reverse
+from datetime import time, datetime
+
+from myadmin.models import Orders,OrderDetail,Product,Payment
+
+from myadmin.models import User, Category, Product
+
+
+# Create your views here.
+
+def index(request,pIndex=1):
+    '''浏览信息'''
+    umod = Orders.objects
+    mywhere = []
+    # 获取并判断搜索条件
+    # 获取、判断并封装状态status搜索条件
+    status = request.GET.get('status', '')
+    if status != '':
+        ulist = umod.filter(status=status)
+        mywhere.append("status=" + status)
+    else:
+        ulist=umod
+
+    ulist = ulist.order_by("id")  # 对id排序
+
+    # 执行分页处理
+    pIndex = int(pIndex)
+    page = Paginator(ulist, 10)  # 以每页5条数据分页
+    maxpages = page.num_pages  # 获取最大页数
+    # 判断当前页是否越界
+    if pIndex > maxpages:
+        pIndex = maxpages
+    if pIndex < 1:
+        pIndex = 1
+    list2 = page.page(pIndex)  # 获取当前页数据
+    plist = page.page_range  # 获取页码列表信息
+
+    for vo in list2:
+        if vo.user_id ==0:
+            vo.nickname='无'
+        else:
+            #单独字段的查询
+            user=User.objects.only('nickname').get(id=vo.user_id)
+            vo.nickname=user.nickname
+
+
+    context = {"orderslist": list2, 'plist': plist, 'pIndex': pIndex, 'maxpages': maxpages, 'mywhere': mywhere}
+    return render(request, "web/list.html", context)
+
+
+def insert(request):
+    """执行订单添加"""
+
+    try:
+        #订单添加
+        od = Orders()
+        od.member_id=1
+        od.user_id=request.session['webuser']['id']
+        od.money=request.session['total_money']
+        od.status = 1#订单状态:1过行中/2无效/3已完成
+        od.payment_status = 2    # 支付状态:1未支付/2已支付/3已退款
+        od.create_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        od.update_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        od.save()
+
+        #执行支付信息添加
+        op=Payment()
+        op.order_id=od.id #订单id号
+        op.member_id =1
+        op.type = 2
+        op.bank = request.GET.get('bank',3) #收款渠道 1:微信/2:余额/3:现金/4:支付宝
+        op.money=request.session['total_money']
+        op.status = 2 #支付状态
+        op.create_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        op.update_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        op.save()
+
+        #执行订单详情添加
+        cartlist = request.session.get('cartlist',{})
+        for item in cartlist.values():
+            ov=OrderDetail()
+            ov.order_id = od.id  # 订单id
+            ov.product_id = item['id']  # 菜品id
+            ov.product_name = item['name']  # 菜品名称
+            ov.price = item['price'] # 单价
+            ov.quantity = item['num']  # 数量
+            ov.status = 1 # 状态:1正常/9删除
+            ov.save()
+
+        del request.session['cartlist']
+        del request.session['total_money']
+
+        return HttpResponse("Y")
+    except Exception as err:
+        print(err)
+        return HttpResponse("N")
+
+def detail(request):
+    """加载订单详情"""
+    oid=request.GET.get("oid",0)
+    dlist=OrderDetail.objects.filter(order_id=oid)
+    context={"detaillist":dlist}
+    return render(request,"web/detail.html",context)
+def status(request):
+    try:
+        oid=request.GET.get("oid",0)
+        ob=Orders.objects.get(id=oid)
+        ob.status=request.GET["status"]
+        ob.save()
+        return HttpResponse("Y")
+    except Exception as err:
+        print(err)
+        return HttpResponse("N")
