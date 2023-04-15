@@ -1,0 +1,42 @@
+{% load static %}
+{% block content %}
+<div class="container">
+  <h1>小料列表</h1>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>名称</th>
+        <th>单价</th>
+        <th>操作</th>
+        <th>数量</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for material in materials %}
+      <tr>
+        <td>{{ material.id }}</td>
+        <td>{{ material.name }}</td>
+        <td>{{ material.price }}</td>
+        <td><button type="button" class="btn btn-primary add-material-btn" data-material-id="{{ material.id }}">添加</button></td>
+        <td><span class="material-quantity" data-material-id="{{ material.id }}">0</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  $(document).ready(function() {
+    // 绑定添加按钮点击事件
+    $('.add-material-btn').click(function() {
+      var materialId = $(this).data('material-id');
+      var quantitySpan = $('.material-quantity[data-material-id=' + materialId + ']');
+      var quantity = parseInt(quantitySpan.text()) + 1;
+      quantitySpan.text(quantity);
+    });
+  });
+</script>
+{% endblock %}

@@ -100,7 +100,7 @@
                         <tr class="oid{{vo.id}}">
                             <td>{{ vo.id }}</td>
                              <th width="60">{{ vo.flow_num }}</th>
-                            <td>id203</td>
+                            <td>{% if vo.member_id == 0 %}默认{% else %}{{ vo.member_id }}{% endif %}</td>
                             <td>{{vo.nickname}}</td>
                             <td class="price">{{vo.money}}</td>
                             <td>微信</td>

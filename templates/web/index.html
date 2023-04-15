@@ -107,9 +107,25 @@
                     </li>
 
                     <div class="panel-footer" style="height:50px">
-                        <div style="width:120px;float:left;margin:5px 0px;">合计：￥<span style="color:red;font-weight:bold;">{{ request.session.total_money }}</span> 元</div>
-                        <button type="submit" onclick="dosubmit()" class="btn btn-warning" style="width:120px;float:right">结 &nbsp; 算</button>
-                         <button onclick="window.location='{% url 'web_cart_clear' %}' "  type="button"  class="btn btn-danger" style="width:50px;float:right">清空</button>
+                        <table>
+                            <tr>
+                                <th><div style="width:120px;float:left;margin:5px 0px;">合计：￥<span style="color:red;font-weight:bold;">{{ request.session.total_money }}</span> 元</div></th>
+                                <th><button type="submit" onclick="dosubmit()" class="btn btn-warning">普通结算</button></th>
+                                <th><button type="submit" onclick="doShowMemberOrder()" class="btn btn-warning">会员结算</button></th>
+                            </tr>
+                            <tr>
+                                <th>序号</th>
+                                <th><button type="button" onclick="doShowOrderSpeak()" class="btn btn-warning" role="button">叫号</button></th>
+                                <th><button onclick="window.location='{% url 'web_cart_clear' %}' "  type="button"  class="btn btn-danger" >清空</button></th>
+                            </tr>
+
+
+                        </table>
+
+
+
+
+
                     </div>
              
             </div>
@@ -140,8 +156,92 @@
     </div>
     <!-- 页面主体结束 -->
 
+    <!-- Modal -->
+    <div class="modal fade" id="myModalSpeak" tabindex="-1" role="dialog" aria-labelledby="myModalSpeakLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalSpeakLabel">叫号列表</h4>
+          </div>
+          <div class="modal-body">
+            <table class="table table-hover">
+
+
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <!--button type="button" class="btn btn-primary">保存</button-->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal2 -->
+    <div class="modal fade" id="myModalMember" tabindex="-1" role="dialog" aria-labelledby="myModalMember">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalMemberLabel">顾客列表</h4>
+          </div>
+
+          <div class="modal-body">
+
+            <div class="box-tools">
+              <form action="" method="get">
+            <div class="input-group input-group-sm" style="width: 150px;">
+              <input type="text" id="keyword" name="keyword" class="form-control pull-right" placeholder="昵称/手机号">
+
+              <div class="input-group-btn">
+                <button type="button" onclick="doSearchMember()"  class="btn btn-default"><i class="fa fa-search"></i></button>
+              </div>
+            </div>
+              </form>
+
+
+
+            </div>
+
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <!--button type="button" class="btn btn-primary">保存</button-->
+          </div>
+        </div>
+      </div>
+    </div>
+        <!-- Modal3 -->
+    <div class="modal fade" id="myModalBatching" tabindex="-1" role="dialog" aria-labelledby="myModalBatchingLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalBatchingLabel">小料添加</h4>
+          </div>
+
+          <div class="modal-body">
+
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+<!--           <a href=" url 'web_cart_add' product.id %" class="btn btn-warning btn-xs pull-right" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></div>#}-->
+              <button type="button" class="btn btn-warning btn-xs pull-right">购买</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
     <script src="{% static 'web/js/jquery.min.js' %}"></script>
     <script src="{% static 'web/js/bootstrap.min.js' %}"></script>
+
+
     <script>
         //执行订单处理
         function dosubmit(){
@@ -177,9 +277,54 @@
 
             })
 
-
-
         }
+
+        function doShowOrderSpeak(){
+            $.ajax({
+                type:'get',
+                url:"{% url 'web_orders_orderSpeak' %}",
+                dataType:'text',
+                data:{status:1},
+                async: false,
+                success:function(res){
+                    $("#myModalSpeak div.modal-body").empty().append(res);
+                    $('#myModalSpeak').modal({keyboard:false})
+                },
+            });
+        }
+
+        function doShowMemberOrder(){
+            $('#myModalMember').modal({keyboard:false});
+        }
+        function doSearchMember(){
+            var kw=document.getElementById("keyword").value
+            console.log(kw)
+            $.ajax({
+                type:'get',
+                url:"{% url 'web_cart_member' %}",
+                dataType:'text',
+                data:{keyword:kw},
+                async: false,
+                success:function(res){
+                    $("#myModalMember div.modal-body").empty().append(res);
+                    $('#myModalMember').modal({keyboard:false})
+                },
+            });
+        }
+        function doBatching(){
+            $.ajax({
+                type:'get',
+                url:"{% url 'web_batchings_show' %}",
+                dataType:'text',
+                data:{},
+                async: false,
+                success:function(res){
+                    $("#myModalBatching div.modal-body").empty().append(res);
+                    $('#myModalBatching').modal({keyboard:false})
+                },
+            });
+        }
+
 
     </script>
 </body>

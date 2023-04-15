@@ -66,7 +66,11 @@ def insert(request):
             flow_num=flow_num-200
 
         od = Orders()
-        od.member_id=1
+        # 获取member
+
+        member_id=request.GET.get("mid",0)
+
+        od.member_id=member_id
         od.user_id=request.session['webuser']['id']
         od.money=request.session['total_money']
         od.status = 1#订单状态:1过行中/2无效/3已完成
@@ -79,8 +83,8 @@ def insert(request):
         #执行支付信息添加
         op=Payment()
         op.order_id=od.id #订单id号
-        op.member_id =1
-        op.type = 2
+        op.member_id =member_id
+        op.type = 2 #1 会员付款2收应援收款
         op.bank = request.GET.get('bank',3) #收款渠道 1:微信/2:余额/3:现金/4:支付宝
         op.money=request.session['total_money']
         op.status = 2 #支付状态
@@ -114,6 +118,21 @@ def detail(request):
     dlist=OrderDetail.objects.filter(order_id=oid)
     context={"detaillist":dlist}
     return render(request,"web/detail.html",context)
+
+def orderSpeak(request):
+    """加载订单详情"""
+    umod = Orders.objects
+    ulist=umod.filter(status=1)
+    #添加当天订单叫号条件
+    now = datetime.now().date()
+    ulist = ulist.filter(create_at__gt=now)
+
+    ulist = ulist.order_by("id")  # 对id排序
+    context = {"orderslist": ulist}
+    return render(request, "web/orderSpeak.html", context)
+
+#快速排序算法
+
 def status(request):
     try:
         oid=request.GET.get("oid",0)
@@ -136,3 +155,4 @@ def speak(request):
     except Exception as err:
         print(err)
         return HttpResponse("N")
+

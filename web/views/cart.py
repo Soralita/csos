@@ -1,8 +1,13 @@
+import json
+
+from django.core.serializers import serialize
+from django.db.models import Q
+
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 
-from myadmin.models import User, Category, Product
+from myadmin.models import User, Category, Product, Member
 
 
 # Create your views here.
@@ -50,3 +55,15 @@ def change(request):
 
     request.session['cartlist'] = cartlist
     return redirect(reverse('web_index'))
+
+
+def member(request):
+    """加载订单详情"""
+    kw=request.GET.get("keyword","")
+
+    om=Member.objects
+    mlist = om.filter(Q(nickname__contains=kw) | Q(mobile__contains=kw))
+    mlist = mlist.order_by("id")  # 对id排序
+
+    context = {"memberlist": mlist}
+    return render(request, "web/orderMember.html", context)
