@@ -20,6 +20,15 @@ def add(request,pid):
 
     #尝试获取购物车sessiong
     cartlist=request.session.get('cartlist',{})
+    #获取小料sessgion
+    materials= request.session.get('materials',{})
+    #放入productlist的produc里面
+    product['materials']=materials
+    if materials!= {}:
+        del request.session['materials']
+        #print(product['materials'])
+
+
     # 把菜放进购物车
     if pid in cartlist:
         cartlist[pid]['num']+=product['num']

@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from datetime import time, datetime
 
-from myadmin.models import Orders,OrderDetail,Product,Payment
+from myadmin.models import Orders, OrderDetail, Product, Payment,BatchingDetail
 
 from myadmin.models import User, Category, Product
 
@@ -103,6 +103,20 @@ def insert(request):
             ov.quantity = item['num']  # 数量
             ov.status = 1 # 状态:1正常/9删除
             ov.save()
+
+        #执行小料详情添加
+        for item in cartlist.values():
+            materials=item['materials']
+
+            for materItem in materials:
+                # print(type(materItem))
+                oba = BatchingDetail()
+                oba.batching_id=materItem['id']
+                oba.order_d_id=od.id
+                oba.product_id=item['id']
+                oba.quantity=materItem['quantity']
+                oba.save()
+
 
         del request.session['cartlist']
         del request.session['total_money']

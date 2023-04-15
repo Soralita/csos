@@ -51,6 +51,7 @@ urlpatterns = [
 
         #小料处理
         path('batching/show',batchings.show,name='web_batchings_show'),
+        path('batching/buy',batchings.buy,name='web_batchings_buy'),
 
     ]))
 ]

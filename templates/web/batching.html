@@ -1,42 +1,72 @@
 {% load static %}
-{% block content %}
-<div class="container">
-  <h1>小料列表</h1>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>名称</th>
-        <th>单价</th>
-        <th>操作</th>
-        <th>数量</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for material in materials %}
-      <tr>
-        <td>{{ material.id }}</td>
-        <td>{{ material.name }}</td>
-        <td>{{ material.price }}</td>
-        <td><button type="button" class="btn btn-primary add-material-btn" data-material-id="{{ material.id }}">添加</button></td>
-        <td><span class="material-quantity" data-material-id="{{ material.id }}">0</span></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-{% endblock %}
+<table class="table table-hover">
+    <div class="panel panel-danger">
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> 小料列表
+            <a type="button" href="{{ url }}" class="btn btn-warning btn-sm">刷 &nbsp; 新</a>
+        </div>
+        <table class="table table-striped">
+            {% csrf_token %}
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>名称</th>
+                <th>单价</th>
+                <th>操作</th>
+                <th>数量</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for material in materials %}
+                <tr>
+                    <td>{{ material.id }}</td>
+                    <td>{{ material.name }}</td>
+                    <td>{{ material.price }}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary add-material-btn"
+                                data-material-id="{{ material.id }}">添加
+                        </button>
+                    </td>
+                    <td><span class="material-quantity" data-material-id="{{ material.id }}">0</span></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
 
-{% block script %}
+    </div>
+
+
+</table>
+
+
 <script>
-  $(document).ready(function() {
-    // 绑定添加按钮点击事件
-    $('.add-material-btn').click(function() {
-      var materialId = $(this).data('material-id');
-      var quantitySpan = $('.material-quantity[data-material-id=' + materialId + ']');
-      var quantity = parseInt(quantitySpan.text()) + 1;
-      quantitySpan.text(quantity);
+    $(document).ready(function () {
+        // 绑定添加按钮点击事件
+        $('.add-material-btn').click(function () {
+            var materialId = $(this).data('material-id');
+            var quantitySpan = $('.material-quantity[data-material-id=' + materialId + ']');
+            var quantity = parseInt(quantitySpan.text()) + 1;
+            quantitySpan.text(quantity);
+        });
+        $('#buy-materials-btn').click(function () {
+            var materials = [];
+            $('.material-quantity').each(function () {
+                var materialId = $(this).data('material-id');
+                var quantity = parseInt($(this).text());
+                if (quantity > 0) {
+                    materials.push({'id': materialId, 'quantity': quantity});
+                }
+            });
+
+            // 发送 POST 请求保存购买信息到 Session 中
+            var csrfToken = $('input[name=csrfmiddlewaretoken]').val();
+            $.post("/web/batching/buy", {'materials': JSON.stringify(materials),'pid':{{pid}} ,csrfmiddlewaretoken: csrfToken}, function (data) {
+                if (data.success) {
+                    alert('购买成功！');
+                } else {
+                    alert('购买失败！');
+                }
+            });
+        });
     });
-  });
 </script>
-{% endblock %}
