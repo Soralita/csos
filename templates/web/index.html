@@ -90,7 +90,26 @@
                             <td class="price">{{ product.price }}</td>
                             <td><a href="{% url 'web_cart_delete' product.id  %}" class="btn btn-danger btn-xs" role="button">删除</a></td>
                         </tr>
+
+                        {% for batching in product.materials   %}
+
+                            <tr>
+                                <td></td>
+                                <td>
+                                    {{ batching.name }}
+                                </td>
+                                <td>
+                                    {{ batching.quantity }}
+                                </td>
+                                <td class="price">
+                                    {{ batching.price }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+
                     {% endfor %}
+
+
 
                     </table>
                     
@@ -232,8 +251,8 @@
 
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-<!--           <a href=" url 'web_cart_add' product.id %" class="btn btn-warning btn-xs pull-right" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></div>-->
-              <button type="button" class="btn btn-success" id="buy-materials-btn">购买</button>
+<!--           < href=" url 'web_cart_add' product.id %" class="btn btn-warning btn-xs pull-right" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></div>-->
+              <button type="button" onclick="doBuyMaterials()" class="btn btn-success" id="buy-materials-btn">购买</button>
           </div>
         </div>
       </div>
@@ -249,6 +268,9 @@
 
 
     <script>
+        $('#myModalBatching').on('hidden.bs.modal',function (){
+           location.reload()
+        });
         //执行订单处理
         function dosubmit(){
             //判断购物车是否没有菜品

@@ -97,7 +97,7 @@ def insert(request):
         for item in cartlist.values():
             ov=OrderDetail()
             ov.order_id = od.id  # 订单id
-            ov.product_id = item['id']  # 菜品id
+            ov.product_id = item['pid']  # 菜品id
             ov.product_name = item['name']  # 菜品名称
             ov.price = item['price'] # 单价
             ov.quantity = item['num']  # 数量
@@ -114,7 +114,10 @@ def insert(request):
                 oba.batching_id=materItem['id']
                 oba.order_d_id=od.id
                 oba.product_id=item['id']
+                oba.batching_name=materItem['name']
+                oba.batching_price=materItem['price']
                 oba.quantity=materItem['quantity']
+                oba.cartid=materItem["cartid"]
                 oba.save()
 
 

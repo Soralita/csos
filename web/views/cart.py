@@ -18,22 +18,34 @@ def add(request,pid):
     product=request.session['productlist'][pid]
     product['num']=1 #初始化
 
+    #添加逻辑 用cartid索引索引数据 而不是pid
+    product['pid']=pid
+
     #尝试获取购物车sessiong
     cartlist=request.session.get('cartlist',{})
     #获取小料sessgion
     materials= request.session.get('materials',{})
+    print(materials)
+
+    # 把菜放进购物车
+    cartid=len(cartlist)+1
+    cartlist[cartid] = product
+    # if pid in cartlist:
+    #     cartlist[pid]['num']+=product['num']
+    # else:
+    #     cartlist[pid]=product
+
+    #materials添加cartid值
+    for mItem in materials:
+        mItem["cartid"]=cartid
+
     #放入productlist的produc里面
     product['materials']=materials
     if materials!= {}:
         del request.session['materials']
-        #print(product['materials'])
+        print(product['materials'])
 
 
-    # 把菜放进购物车
-    if pid in cartlist:
-        cartlist[pid]['num']+=product['num']
-    else:
-        cartlist[pid]=product
     #讲cartlist放入购物车
     request.session['cartlist']=cartlist
     #print((cartlist))
@@ -56,11 +68,15 @@ def change(request):
     """更改购物车"""
     cartlist=request.session.get('cartlist',{})
     pid=request.GET.get("pid",0)
+    cartid=request.GET.get("cartid",0)
     m=int(request.GET.get('num',1))
     print(m)
     if m<1:
         m=1
-    cartlist[pid]['num']=m
+
+    #改为cartid
+    cartlist[cartid]['num']=m
+
 
     request.session['cartlist'] = cartlist
     return redirect(reverse('web_index'))

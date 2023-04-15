@@ -20,8 +20,8 @@
             {% for material in materials %}
                 <tr>
                     <td>{{ material.id }}</td>
-                    <td>{{ material.name }}</td>
-                    <td>{{ material.price }}</td>
+                    <td data-material-name="{{ material.name }}">{{ material.name }}</td>
+                    <td data-material-price="{{ material.price }}">{{ material.price }}</td>
                     <td>
                         <button type="button" class="btn btn-primary add-material-btn"
                                 data-material-id="{{ material.id }}">添加
@@ -37,9 +37,30 @@
 
 
 </table>
+<div class="modal" tabindex="-1" role="dialog" id="buy-modal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">确认购买</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>购买成功了吧</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" id="confirm-buy-btn">确认</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 <script>
+
+    //TODO 添加改为function格式
     $(document).ready(function () {
         // 绑定添加按钮点击事件
         $('.add-material-btn').click(function () {
@@ -48,25 +69,37 @@
             var quantity = parseInt(quantitySpan.text()) + 1;
             quantitySpan.text(quantity);
         });
-        $('#buy-materials-btn').click(function () {
-            var materials = [];
-            $('.material-quantity').each(function () {
-                var materialId = $(this).data('material-id');
-                var quantity = parseInt($(this).text());
-                if (quantity > 0) {
-                    materials.push({'id': materialId, 'quantity': quantity});
-                }
-            });
-
-            // 发送 POST 请求保存购买信息到 Session 中
-            var csrfToken = $('input[name=csrfmiddlewaretoken]').val();
-            $.post("/web/batching/buy", {'materials': JSON.stringify(materials),'pid':{{pid}} ,csrfmiddlewaretoken: csrfToken}, function (data) {
-                if (data.success) {
-                    alert('购买成功！');
-                } else {
-                    alert('购买失败！');
-                }
-            });
-        });
+        //{#$('#buy-materials-btn').click();#}
     });
+
+    function doBuyMaterials() {
+        var materials = [];
+        $('.material-quantity').each(function () {
+            var materialId = $(this).data('material-id');
+            var quantity = parseInt($(this).text());
+            if (quantity > 0) {
+                var name = $('.add-material-btn[data-material-id=' + materialId + ']').closest('tr').find('td:eq(1)').text();
+                var price = parseFloat($('.add-material-btn[data-material-id=' + materialId + ']').closest('tr').find('td:eq(2)').text());
+                materials.push({'id': materialId, 'name': name, 'price': price, 'quantity': quantity});
+            }
+        });
+
+        // 发送 POST 请求保存购买信息到 Session 中
+        var csrfToken = $('input[name=csrfmiddlewaretoken]').val();
+        console.log(materials)
+        $.post("/web/batching/buy", {
+            'materials': JSON.stringify(materials),
+            'pid':{{pid}},
+            csrfmiddlewaretoken: csrfToken
+        }, function (data) {
+            if (data.success) {
+                alert('购买成功');
+                location.reload()
+            } else {
+                alert('购买失败！');
+                location.reload()
+            }
+        });
+    };
+
 </script>

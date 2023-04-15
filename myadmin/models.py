@@ -200,6 +200,7 @@ class BatchingDetail(models.Model):
     batching_price = models.DecimalField(max_digits=6, decimal_places=2, db_column='batching_price')
     quantity = models.IntegerField(db_column='quantity', default=1)
     status = models.SmallIntegerField(choices=STATUS_CHOICES, default=1, db_column='status')
+    cartid=models.IntegerField(null=False)
 
     class Meta:
         db_table = 'batching_detail'

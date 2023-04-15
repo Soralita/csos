@@ -22,7 +22,8 @@ def buy(request):
     if request.method == 'POST':
         materials = request.POST.get('materials', '[]')
         pid=request.POST.get('pid',0)
-        # print("met"+materials+"pid"+pid)
+        print("met"+materials+"pid"+pid)
+
         try:
             materials = json.loads(materials)
         except ValueError:
