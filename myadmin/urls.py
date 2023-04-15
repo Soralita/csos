@@ -55,4 +55,10 @@ urlpatterns = [
 
     #会员信息管理路由
     path('member/<int:pIndex>', member.index, name="myadmin_member_index"), #浏览
+    path('member/del/<int:mid>', member.delete, name="myadmin_member_delete"), #删除
+    path('member/edit/<int:mid>', member.edit, name="myadmin_member_edit"),  # 加载编辑表单
+    path('member/update/<int:mid>', member.update, name="myadmin_member_update"),  # 执行编辑
+    path('member/add', member.add, name="myadmin_member_add"),  # 添加表单
+    path('member/insert', member.insert, name="myadmin_member_insert"),  # 执行添加
+
 ]

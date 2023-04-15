@@ -47,7 +47,7 @@
             <span class="icon-bar"></span>
           </button>
           <a class="navbar-brand" href="{% url 'web_index' %}">
-            <span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span> <span style="font-weight:bold;">凉虾点餐</span><span style="font-size:14px;">（合川区）</span></a>
+            <span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span> <span style="font-weight:bold;">凉虾点餐</span><span style="font-size:14px;">（大足区）</span></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
@@ -57,7 +57,7 @@
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li><a href="../navbar/">
-                    <span class="glyphicon glyphicon-user" aria-hidden="true"> {{ request.session.webuser.nickname}}</a></li>
+                <span class="glyphicon glyphicon-user" aria-hidden="true"> {{ request.session.webuser.nickname}}</a></li>
             <li><a href="{% url 'web_logout' %}">退出</a></li>
           </ul>
         </div><!--/.nav-collapse -->
@@ -90,7 +90,26 @@
                             <td class="price">{{ product.price }}</td>
                             <td><a href="{% url 'web_cart_delete' product.id  %}" class="btn btn-danger btn-xs" role="button">删除</a></td>
                         </tr>
+
+                        {% for batching in product.materials   %}
+
+                            <tr>
+                                <td></td>
+                                <td>
+                                    {{ batching.name }}
+                                </td>
+                                <td>
+                                    {{ batching.quantity }}
+                                </td>
+                                <td class="price">
+                                    {{ batching.price }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+
                     {% endfor %}
+
+
 
                     </table>
                     
@@ -107,9 +126,25 @@
                     </li>
 
                     <div class="panel-footer" style="height:50px">
-                        <div style="width:120px;float:left;margin:5px 0px;">合计：￥<span style="color:red;font-weight:bold;">{{ request.session.total_money }}</span> 元</div>
-                        <button type="submit" onclick="dosubmit()" class="btn btn-warning" style="width:120px;float:right">结 &nbsp; 算</button>
-                         <button onclick="window.location='{% url 'web_cart_clear' %}' "  type="button"  class="btn btn-danger" style="width:50px;float:right">清空</button>
+                        <table>
+                            <tr>
+                                <th><div style="width:120px;float:left;margin:5px 0px;">合计：￥<span style="color:red;font-weight:bold;">{{ request.session.total_money }}</span> 元</div></th>
+                                <th><button type="submit" onclick="dosubmit()" class="btn btn-warning">普通结算</button></th>
+                                <th><button type="submit" onclick="doShowMemberOrder()" class="btn btn-warning">会员结算</button></th>
+                            </tr>
+                            <tr>
+                                <th>序号</th>
+                                <th><button type="button" onclick="doShowOrderSpeak()" class="btn btn-warning" role="button">叫号</button></th>
+                                <th><button onclick="window.location='{% url 'web_cart_clear' %}' "  type="button"  class="btn btn-danger" >清空</button></th>
+                            </tr>
+
+
+                        </table>
+
+
+
+
+
                     </div>
              
             </div>
@@ -128,6 +163,7 @@
                         <h6>{{ product.name }}</h6>
                         <div class="bn">￥<span class="price">{{ product.price }}</span>元</a>
                         <a href="{% url 'web_cart_add' product.id %}" class="btn btn-warning btn-xs pull-right" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></div>
+                          <button class="btn btn-social pull-right" onclick="doBatching({{ product.id }})">Bching</button>
                       </div>
                     </div>
                 </div>
@@ -140,9 +176,101 @@
     </div>
     <!-- 页面主体结束 -->
 
+    <!-- Modal -->
+    <div class="modal fade" id="myModalSpeak" tabindex="-1" role="dialog" aria-labelledby="myModalSpeakLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalSpeakLabel">叫号列表</h4>
+          </div>
+          <div class="modal-body">
+            <table class="table table-hover">
+
+
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <!--button type="button" class="btn btn-primary">保存</button-->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal2 -->
+    <div class="modal fade" id="myModalMember" tabindex="-1" role="dialog" aria-labelledby="myModalMember">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalMemberLabel">顾客列表</h4>
+          </div>
+
+          <div class="modal-body">
+
+            <div class="box-tools">
+              <form action="" method="get">
+            <div class="input-group input-group-sm" style="width: 150px;">
+              <input type="text" id="keyword" name="keyword" class="form-control pull-right" placeholder="昵称/手机号">
+
+              <div class="input-group-btn">
+                <button type="button" onclick="doSearchMember()"  class="btn btn-default"><i class="fa fa-search"></i></button>
+              </div>
+            </div>
+              </form>
+
+
+
+            </div>
+          </div>
+
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <!--button type="button" class="btn btn-primary">保存</button-->
+          </div>
+        </div>
+      </div>
+    </div>
+        <!-- Modal3 -->
+    <div class="modal fade" id="myModalBatching" tabindex="-1" role="dialog" aria-labelledby="myModalBatchingLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalBatchingLabel">小料添加</h4>
+          </div>
+
+          <div class="modal-body">
+                <div>
+                    小料
+                </div>
+          </div>
+
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+<!--           < href=" url 'web_cart_add' product.id %" class="btn btn-warning btn-xs pull-right" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></div>-->
+              <button type="button" onclick="doBuyMaterials()" class="btn btn-success" id="buy-materials-btn">购买</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
     <script src="{% static 'web/js/jquery.min.js' %}"></script>
     <script src="{% static 'web/js/bootstrap.min.js' %}"></script>
+
+
     <script>
+        $('#myModalBatching').on('hidden.bs.modal',function (){
+           location.reload()
+        });
         //执行订单处理
         function dosubmit(){
             //判断购物车是否没有菜品
@@ -177,9 +305,55 @@
 
             })
 
-
-
         }
+
+        function doShowOrderSpeak(){
+            $.ajax({
+                type:'get',
+                url:"{% url 'web_orders_orderSpeak' %}",
+                dataType:'text',
+                data:{status:1},
+                async: false,
+                success:function(res){
+                    $("#myModalSpeak div.modal-body").empty().append(res);
+                    $('#myModalSpeak').modal({keyboard:false})
+                },
+            });
+        }
+
+        function doShowMemberOrder(){
+            $('#myModalMember').modal({keyboard:false});
+        }
+        function doSearchMember(){
+            var kw=document.getElementById("keyword").value
+            console.log(kw)
+            $.ajax({
+                type:'get',
+                url:"{% url 'web_cart_member' %}",
+                dataType:'text',
+                data:{keyword:kw},
+                async: false,
+                success:function(res){
+                    $("#myModalMember div.modal-body").empty().append(res);
+                    $('#myModalMember').modal({keyboard:false})
+                },
+            });
+        }
+        function doBatching(pid){
+            $.ajax({
+                type:'get',
+                url:"{% url 'web_batchings_show' %}",
+                dataType:'text',
+                data:{pid:pid},
+                async: false,
+                success:function(res){
+                    $("#myModalBatching div.modal-body").empty().append(res);
+                    $('#myModalBatching').modal({keyboard:false})
+
+                },
+            });
+        }
+
 
     </script>
 </body>
