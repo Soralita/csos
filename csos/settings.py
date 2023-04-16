@@ -83,7 +83,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'csosdb',
         'USER': 'root',
-        'PASSWORD': '@Christina17',
+        'PASSWORD': 'zjj12138',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
