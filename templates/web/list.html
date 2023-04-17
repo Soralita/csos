@@ -6,6 +6,7 @@
     <title>点餐系统</title>
     <link rel="stylesheet" href="{% static 'web/css/bootstrap.css'%}">
     <link rel="stylesheet" href="{% static 'web/css/common.css'%}">
+    <script language="javascript" src="{% static 'web/js/LodopFuncs.js'%}"></script>
     <style type="text/css">
         body{min-height:2000px;padding-top:70px;}
 
@@ -57,7 +58,7 @@
             <span class="icon-bar"></span>
           </button>
           <a class="navbar-brand" href="#">
-            <span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span> <span style="font-weight:bold;">凉虾点餐</span><span style="font-size:14px;">（合川区）</span></a>
+            <span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span> <span style="font-weight:bold;">凉虾点餐</span><span style="font-size:14px;">（大足区）</span></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
@@ -99,7 +100,7 @@
                         <tr class="oid{{vo.id}}">
                             <td>{{ vo.id }}</td>
                              <th width="60">{{ vo.flow_num }}</th>
-                            <td>id203</td>
+                            <td>{% if vo.member_id == 0 %}默认{% else %}{{ vo.member_id }}{% endif %}</td>
                             <td>{{vo.nickname}}</td>
                             <td class="price">{{vo.money}}</td>
                             <td>微信</td>
@@ -128,9 +129,10 @@
                             <td>{{ vo.create_at|date:'Y-m-d H:i:s' }}</td>
                             <td>
                                 <button type="button" onclick="doShow({{vo.id}})" class="btn btn-warning btn-xs" role="button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span> 详情</button>
+                                <button type="button" onclick="prn1_print({{vo.id}})" class="btn btn-warning btn-xs" role="button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span> 打印</button>
                                 {% if vo.status == 1%}
                                 <button type="button" onclick="doChangeStatus({{vo.id}},3)" class="btn btn-info btn-xs" role="button"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 完成</button>
-                                    <button type="button" onclick="doSpeak({{ vo.id }},{{vo.flow_num}})" class="btn btn-info btn-xs" role="button"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 叫号</button>
+                                <button type="button" onclick="doSpeak({{ vo.id }},{{vo.flow_num}})" class="btn btn-info btn-xs" role="button"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> 叫号</button>
                                 <button type="button" onclick="doChangeStatus({{vo.id}},2)" class="btn btn-danger btn-xs" role="button"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> 删除</button>
                                 {% endif %}
                             </td>
@@ -195,6 +197,36 @@
     <script src="{% static 'web/js/jquery.min.js'%}"></script>
     <script src="{% static 'web/js/bootstrap.min.js'%}"></script>
     <script type="text/javascript">
+            var LODOP; //声明为全局变量
+            function prn1_preview() {
+                CreateOneFormPage();
+                LODOP.PREVIEW();
+            };
+            function prn1_print(id) {
+                CreateOneFormPage(id);
+                LODOP.PRINT();
+            };
+            function CreateOneFormPage(id){
+                $.ajax({
+                type:'get',
+                url:"{% url 'web_orders_detail' %}",
+                dataType:'text',
+                data:{oid:id},
+                async: false,
+                success:function(res){
+                    $("#myModal div.modal-body").empty().append(res);
+                   // $('#myModal').modal({keyboard:false})
+                    },
+                });
+
+
+                LODOP=getLodop();
+                LODOP.PRINT_INIT("打印控件功能演示_Lodop功能_表单一");
+                LODOP.SET_PRINT_STYLE("FontSize",18);
+                LODOP.SET_PRINT_STYLE("Bold",1);
+                LODOP.ADD_PRINT_TEXT(50,231,260,39,"打印页面部分内容");
+                LODOP.ADD_PRINT_HTM(88,200,350,600,document.getElementById("myModal").innerHTML);
+            };
         function doShow(id){
             $.ajax({
                 type:'get',

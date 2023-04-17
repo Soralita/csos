@@ -163,3 +163,44 @@ class Payment(models.Model):
         db_table = "payment"  # 更改表名
 
 
+
+class Batchings(models.Model):
+    STATUS_CHOICES = (
+        (1, '正常'),
+        (2, '停售'),
+        (9, '删除')
+    )
+    RADIO_CHOICES = (
+        (0, '可多选'),
+        (1, '单选')
+    )
+    id = models.AutoField(primary_key=True, db_column='id')
+    cover_pic = models.CharField(max_length=50, db_column='cover_pic')
+    name = models.TextField(max_length=255, db_column='name')
+    price = models.DecimalField(max_digits=6, decimal_places=2, default=0, db_column='price')
+    status = models.SmallIntegerField(choices=STATUS_CHOICES, default=1, db_column='status')
+    create_at = models.DateTimeField(auto_now_add=True, db_column='create_at')
+    update_at = models.DateTimeField(auto_now=True, db_column='update_at')
+    radio = models.SmallIntegerField(choices=RADIO_CHOICES, default=0, db_column='radio')
+
+    class Meta:
+        db_table = 'batching'
+from django.db import models
+
+class BatchingDetail(models.Model):
+    STATUS_CHOICES = (
+        (1, '正常'),
+        (9, '删除')
+    )
+    id = models.AutoField(primary_key=True, db_column='id')
+    batching_id = models.IntegerField(db_column='batching_id', null=False)
+    order_d_id = models.IntegerField(db_column='order_d_id', null=False)
+    product_id = models.IntegerField(db_column='product_id', null=False)
+    batching_name = models.CharField(max_length=50, db_column='batching_name', null=False)
+    batching_price = models.DecimalField(max_digits=6, decimal_places=2, db_column='batching_price')
+    quantity = models.IntegerField(db_column='quantity', default=1)
+    status = models.SmallIntegerField(choices=STATUS_CHOICES, default=1, db_column='status')
+    cartid=models.IntegerField(null=False)
+
+    class Meta:
+        db_table = 'batching_detail'

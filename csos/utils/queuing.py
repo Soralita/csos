@@ -2,22 +2,21 @@ import concurrent.futures
 import pyaudio as pa
 import wave
 import csos.settings
-
 MAX_WORKERS = 1  # 最大并发线程数
-
 
 # 语音播报
 def play_audio(text):
     pre_path = csos.settings.STATIC_AUDIO_FILE
     p = pa.PyAudio()
+
     filePath = pre_path + "/" + text + ".wav"
+
     wf = wave.open(filePath, 'rb')
     wf_data = wf.readframes(wf.getnframes())
     stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
                     channels=wf.getnchannels(),
                     rate=wf.getframerate(),
                     output=True)
-
     def play():
         stream.write(wf_data)
         stream.stop_stream()
@@ -28,7 +27,6 @@ def play_audio(text):
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         future = executor.submit(play)
         future.result()
-
 
 def device_list():
     import pyaudio

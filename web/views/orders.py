@@ -5,11 +5,12 @@ from django.http import HttpResponse
 from django.urls import reverse
 from datetime import time, datetime
 
-from myadmin.models import Orders,OrderDetail,Product,Payment
+from myadmin.models import Orders, OrderDetail, Product, Payment,BatchingDetail
 
 from myadmin.models import User, Category, Product
 
-from csos import queuing
+from csos.utils import queuing
+
 
 # Create your views here.
 
@@ -66,7 +67,11 @@ def insert(request):
             flow_num=flow_num-200
 
         od = Orders()
-        od.member_id=1
+        # 获取member
+
+        member_id=request.GET.get("mid",0)
+
+        od.member_id=member_id
         od.user_id=request.session['webuser']['id']
         od.money=request.session['total_money']
         od.status = 1#订单状态:1过行中/2无效/3已完成
@@ -79,8 +84,8 @@ def insert(request):
         #执行支付信息添加
         op=Payment()
         op.order_id=od.id #订单id号
-        op.member_id =1
-        op.type = 2
+        op.member_id =member_id
+        op.type = 2 #1 会员付款2收应援收款
         op.bank = request.GET.get('bank',3) #收款渠道 1:微信/2:余额/3:现金/4:支付宝
         op.money=request.session['total_money']
         op.status = 2 #支付状态
@@ -93,12 +98,29 @@ def insert(request):
         for item in cartlist.values():
             ov=OrderDetail()
             ov.order_id = od.id  # 订单id
-            ov.product_id = item['id']  # 菜品id
+            ov.product_id = item['pid']  # 菜品id
             ov.product_name = item['name']  # 菜品名称
             ov.price = item['price'] # 单价
             ov.quantity = item['num']  # 数量
             ov.status = 1 # 状态:1正常/9删除
             ov.save()
+
+        #执行小料详情添加
+        for item in cartlist.values():
+            materials=item['materials']
+
+            for materItem in materials:
+                # print(type(materItem))
+                oba = BatchingDetail()
+                oba.batching_id=materItem['id']
+                oba.order_d_id=od.id
+                oba.product_id=item['id']
+                oba.batching_name=materItem['name']
+                oba.batching_price=materItem['price']
+                oba.quantity=materItem['quantity']
+                oba.cartid=materItem["cartid"]
+                oba.save()
+
 
         del request.session['cartlist']
         del request.session['total_money']
@@ -114,6 +136,21 @@ def detail(request):
     dlist=OrderDetail.objects.filter(order_id=oid)
     context={"detaillist":dlist}
     return render(request,"web/detail.html",context)
+
+def orderSpeak(request):
+    """加载订单详情"""
+    umod = Orders.objects
+    ulist=umod.filter(status=1)
+    #添加当天订单叫号条件
+    now = datetime.now().date()
+    ulist = ulist.filter(create_at__gt=now)
+
+    ulist = ulist.order_by("id")  # 对id排序
+    context = {"orderslist": ulist}
+    return render(request, "web/orderSpeak.html", context)
+
+#快速排序算法
+
 def status(request):
     try:
         oid=request.GET.get("oid",0)
@@ -136,3 +173,4 @@ def speak(request):
     except Exception as err:
         print(err)
         return HttpResponse("N")
+

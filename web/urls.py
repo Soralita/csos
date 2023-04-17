@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from web.views import index, orders
+from web.views import index, orders, batchings
 from web.views import cart
 
 urlpatterns = [
@@ -35,9 +35,11 @@ urlpatterns = [
         path("", index.webindex, name="web_index"), #前台大堂点餐首页
         #购物车视图
         path('cart/add/<str:pid>',cart.add,name="web_cart_add"),
-        path('cart/delete/<str:pid>',cart.delete,name="web_cart_delete"),
+        path('cart/delete/<str:cartid>',cart.delete,name="web_cart_delete"),
         path('cart/clear',cart.clear,name="web_cart_clear"),
         path('cart/change',cart.change,name="web_cart_change"),
+
+        path('cart/member', cart.member, name='web_cart_member'),
 
         #订单处理路由
         path('orders/<int:pIndex>',orders.index,name='web_orders_index'),
@@ -45,7 +47,13 @@ urlpatterns = [
         path('orders/detail',orders.detail,name='web_orders_detail'),
         path('orders/status',orders.status,name='web_orders_status'),
         path('orders/speak',orders.speak,name='web_orders_speak'),
+        path('orders/orderSpeak',orders.orderSpeak,name='web_orders_orderSpeak'),
 
+        #小料处理
+        path('batching/show',batchings.show,name='web_batchings_show'),
+        path('batching/buy',batchings.buy,name='web_batchings_buy'),
+        path('batching/change',batchings.change,name='web_batchings_change'),
+        path('batching/delete/<str:cart_id>/<int:batching_id>/',batchings.delete,name='web_batchings_delete'),
 
     ]))
 ]

@@ -1,0 +1,59 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+
+<script language="javascript" src="../../static/web/js/template-web.js"></script>
+<script language="javascript"  src="../../static/web/js/LodopFuncs.js"></script>
+
+
+
+<body >
+<div id="Okprint">
+    123
+
+</div>
+
+</body>
+
+
+
+
+<script language="javascript" type="text/javascript">
+
+    var LODOP; //声明为全局变量
+
+    strHtml=document.getElementById("Okprint").innerHTML;
+
+    var height=100;
+        // 创建打印页
+        // 初始化小票打印身份信息
+        //initLodopLicences();
+
+        // 创建小票打印头信息
+        //createPayTitle("汇总打印凭证", "汇总信息");
+    try{
+        LODOP=getLodop();
+        LODOP.PRINT_INIT("打印小票");
+        LODOP.SET_PRINT_PAGESIZE(3,"58mm",20,"");
+        LODOP.ADD_PRINT_HTM("9mm","0mm","RightMargin:0mm",height+"px", strHtml);
+        LODOP.PREVIEW();
+    }catch(err){
+        console.log(err)
+    }
+
+        //createPayFooter();
+
+        // 开始打印
+        //startPayPrint(pcPrinterName);
+
+</script>
+
+
+
+</html>
+
