@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filters %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -56,7 +57,7 @@
             <li><a href="{% url 'web_orders_index' 1 %}?status=3">历史订单</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="../navbar/">
+            <li><a href="{% url 'myadmin_index' %}">
                 <span class="glyphicon glyphicon-user" aria-hidden="true"> {{ request.session.webuser.nickname}}</a></li>
             <li><a href="{% url 'web_logout' %}">退出</a></li>
           </ul>
@@ -75,39 +76,61 @@
                             <th width="30">序</th>
                             <th>菜品</th>
                             <th width="72">数量</th>
-                            <th width="45">单价</th>
+                            <th width="45">价格</th>
                             <th>删除</th>
                         </tr>
-
+                    {% with total_price=0 %}
                     {% for product in request.session.cartlist.values %}
+
+                        {% with product_sub_total_price=product.num|multiply:product.price %}
+                        {% with total_price=total_price|add:product_sub_total_price %}
                         <tr>
-                            <td>{{ forloop.counter }}</td>
+                            <td id="productCartId" value="{{ forloop.counter }}">{{ forloop.counter }}</td>
                             <td>{{ product.name}}</td>
                             <td class="num">
-                                <i onclick="window.location='{% url 'web_cart_change' %}?pid={{ product.id }}&num={{ product.num|add:-1 }}'" class="btn btn-default btn-xs"> - </i>
+                                <i onclick="window.location='{% url 'web_cart_change' %}?cartid={{ forloop.counter }}&num={{ product.num|add:-1 }}'" class="btn btn-default btn-xs"> - </i>
                                 <span>{{ product.num }}</span>
-                                <i onclick="window.location='{% url 'web_cart_change' %}?pid={{ product.id }}&num={{ product.num|add:1 }}'" class="btn btn-default btn-xs"> + </i></td>
-                            <td class="price">{{ product.price }}</td>
-                            <td><a href="{% url 'web_cart_delete' product.id  %}" class="btn btn-danger btn-xs" role="button">删除</a></td>
+                                <i onclick="window.location='{% url 'web_cart_change' %}?cartid={{ forloop.counter }}&num={{ product.num|add:1 }}'" class="btn btn-default btn-xs"> + </i></td>
+                            <td class="price">{{ product_sub_total_price }}</td>
+                            <td><a href="{% url 'web_cart_delete' forloop.counter  %}" class="btn btn-danger btn-xs" role="button">删除</a></td>
                         </tr>
+                        {% endwith %}
 
-                        {% for batching in product.materials   %}
+                        {% with batchings_total_price=0 %}
+                            {% with productCartId=forloop.counter %}
+                                {% for batching in product.materials   %}
+                                     {% with batchings_sub_total=batching.price|multiply:batching.quantity %}
+                                        {% with batchings_total_price=batchings_total_price|add:batchings_sub_total %}
+                                        {% with total_price=total_price|add:batchings_sub_total %}
+                                            <tr>
+                                                <td></td>
+                                                <td>
+                                                    {{ batching.name }}
+                                                </td>
+                                                <td>
+                                                    <i onclick="window.location='{% url 'web_batchings_change' %}?cartid={{ productCartId }}&bid={{ batching.id }}&num={{batching.quantity|add:-1 }}'" class="btn btn-default btn-xs"> - </i>
+                                                    {{ batching.quantity }}
+                                                     <i onclick="window.location='{% url 'web_batchings_change' %}?cartid={{ productCartId }}&bid={{ batching.id }}&num={{ batching.quantity|add:1 }}'" class="btn btn-default btn-xs"> + </i>
+                                                </td>
+                                                <td class="price">
+                                                    {{ batchings_sub_total }}
+                                                </td>
+                                                <td>
+                                                    <a href="{% url 'web_batchings_delete' productCartId batching.id  %}" class="btn btn-danger btn-xs" role="button">删除</a>
+                                                </td>
+                                            </tr>
+                                        {% endwith %}
+                                    {% endwith %}
+                                    {% endwith %}
+                                {% endfor %}
+                            {% endwith %}
+                        {% endwith %}
+                        {
 
-                            <tr>
-                                <td></td>
-                                <td>
-                                    {{ batching.name }}
-                                </td>
-                                <td>
-                                    {{ batching.quantity }}
-                                </td>
-                                <td class="price">
-                                    {{ batching.price }}
-                                </td>
-                            </tr>
-                        {% endfor %}
+                    {% endwith %}
 
                     {% endfor %}
+                    {% endwith %}
 
 
 
@@ -141,12 +164,8 @@
 
                         </table>
 
-
-
-
-
                     </div>
-             
+
             </div>
         </div>
         <div class="col-md-8">
@@ -162,8 +181,10 @@
                       <div class="caption">
                         <h6>{{ product.name }}</h6>
                         <div class="bn">￥<span class="price">{{ product.price }}</span>元</a>
-                        <a href="{% url 'web_cart_add' product.id %}" class="btn btn-warning btn-xs pull-right" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></div>
-                          <button class="btn btn-social pull-right" onclick="doBatching({{ product.id }})">Bching</button>
+                        <button onclick="doBatching({{ product.id }})" class="btn btn-warning btn-xs pull-right" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</button></div>
+                        <!--TODO 原来web_cart_add api 应该取消,或更改,已无法正常使用
+                         <a href=" url 'web_cart_add' product.id %}" class="btn btn-warning btn-xs pull-right" role="button"><span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> 购买</a></div>-->
+
                       </div>
                     </div>
                 </div>

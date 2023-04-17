@@ -1,2 +1,11 @@
 .idea/*
 venv
+csos/utils/应用公钥RSA2048.txt
+csos/utils/应用私钥RSA2048.txt
+csos/utils/conRsa.py
+csos/utils/wechatPayAPI.py
+csos/utils/aliPayAPI.py
+csos/utils/alipayPublicKey_RSA2.txt
+csos/settings.py
+.idea/misc.xml
+.idea/csos.iml
