@@ -50,11 +50,11 @@ def add(request,pid):
     request.session['cartlist']=cartlist
     #print((cartlist))
     return redirect("web_index")
-def delete(request,pid):
+def delete(request,cartid):
     """删除购物车"""
     # 从session中获取当前店铺中的所以菜品信息
     cartlist=request.session.get('cartlist',{})
-    del cartlist[pid]
+    del cartlist[cartid]
     request.session['cartlist']=cartlist
     return redirect(reverse('web_index'))
 
@@ -70,6 +70,7 @@ def change(request):
     pid=request.GET.get("pid",0)
     cartid=request.GET.get("cartid",0)
     m=int(request.GET.get('num',1))
+
     print(m)
     if m<1:
         m=1

@@ -6,31 +6,25 @@ from Crypto.Signature.pkcs1_15 import PKCS115_SigScheme as pkcs1_15
 import base64
 import time
 
+
+
 # 支付宝API URL
 url = 'https://openapi.alipay.com/gateway.do'
 
 # 应用ID、商户号和私钥
-app_id = 'YOUR_APP_ID'
+app_id = '2021003189630875'
 mch_id = 'YOUR_MCH_ID'
-private_key = 'YOUR_PRIVATE_KEY'
+private_key = open("应用私钥RSA2048.txt").read()
+auth_code='289582679135507097'
 
-# 订单信息
+# 订单信息 为请求参数的biz_content的集合
 order_info = {
-    'out_trade_no': 'YOUR_OUT_TRADE_NO',
-    'total_amount': '1.00',
-    'subject': 'YOUR_SUBJECT',
-    'product_code': 'QUICK_MSECURITY_PAY'
+    'out_trade_no': '202304162113',
+    'total_amount': '0.01',
+    'subject': 'Pycharm',
+    'auth_code': auth_code,
 }
 
-# 快速排序
-def quick_sort(arr):
-    if len(arr) < 2:
-        return arr
-    else:
-        pivot = arr[0]
-        less = [i for i in arr[1:] if i <= pivot]
-        greater = [i for i in arr[1:] if i > pivot]
-        return quick_sort(less) + [pivot] + quick_sort(greater)
 
 
 # 生成签名
