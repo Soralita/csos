@@ -20,6 +20,12 @@ def webindex(request):
     total_money=0
     for vo in cartlist.values():
         total_money+=vo['num']*vo['price']
+        sub_batchings=0
+        for vom in vo['materials']:
+            # print(vom)
+            sub_batchings+=vom['quantity']*vom['price']
+        total_money+=sub_batchings
+
     request.session['total_money']=total_money
 
 

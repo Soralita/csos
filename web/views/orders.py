@@ -9,7 +9,8 @@ from myadmin.models import Orders, OrderDetail, Product, Payment,BatchingDetail
 
 from myadmin.models import User, Category, Product
 
-from csos import queuing
+from csos.utils import queuing
+
 
 # Create your views here.
 
