@@ -30,28 +30,24 @@ alipay = AliPay(
 )
 print(alipay)
 
-out_trade_no = "out_trade_no_02"
+auth_code="284084344951080085"
+out_trade_no = "out_trade_no_07"
 # 创建订单
-result = alipay.api_alipay_trade_precreate(
-    subject="test subject",  # 订单标题
-    out_trade_no=out_trade_no,  # 订单号（不可重复）
-    total_amount=0.01    # 订单金额，单位元
+result = alipay.api_alipay_trade_pay(
+    out_trade_no=out_trade_no,
+    scene="bar_code",
+    auth_code=auth_code,
+    subject="subject_title",
+    total_amount=0.01,
 )
 
+if result["code"] == "10000":
+    print("Order is paid")
 print(result)
+
 # 这里应该打印出{'code': '10000', 'msg': 'Success', 'out_trade_no': 'out_trade_no_123', 'qr_code': 'https://qr.alipay.com/bax05832mvaotxhcpjeh6074'}
 # 其中用qr_code生成二维码，支付宝扫描即可付款
 # 用qr_code生成二维码
-
-qr=qrcode.QRCode(version=5,
-    error_correction=qrcode.constants.ERROR_CORRECT_L,
-    box_size=10,
-    border=4,
-)
-qr.add_data(result['qr_code'])
-qr.make(fit=True)
-img=qr.make_image()
-img.save('test.png')
 
 
 
