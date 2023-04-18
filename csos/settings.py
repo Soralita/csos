@@ -83,7 +83,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'csosdb',
         'USER': 'root',
-        'PASSWORD': 'zjj12138',
+        'PASSWORD': '@Christina17',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
@@ -136,4 +136,11 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # audio 数据资源文件夹
-STATIC_AUDIO_FILE = "../../static/audio"
+
+STATIC_AUDIO_FILE=os.path.join(BASE_DIR, 'static\\audio')
+
+# speak queuing 资源目录
+SPEAK_PY_FILE= os.path.join(BASE_DIR, 'csos\\utils\\queuing.py')
+#Python venv
+PYTHON_EXE_FILE=os.path.join(BASE_DIR,'venv\\Scripts\\python.exe')
+

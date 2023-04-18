@@ -1,3 +1,8 @@
+import concurrent
+import os
+import subprocess
+import sys
+
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, redirect
@@ -10,6 +15,9 @@ from myadmin.models import Orders, OrderDetail, Product, Payment,BatchingDetail
 from myadmin.models import User, Category, Product
 
 from csos.utils import queuing
+
+from web.views.payment import pay_qrcode, pay_trade
+
 
 
 # Create your views here.
@@ -93,6 +101,9 @@ def insert(request):
         op.update_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         op.save()
 
+        # pay_qrcode(op)
+        pay_trade(op)
+
         #执行订单详情添加
         cartlist = request.session.get('cartlist',{})
         for item in cartlist.values():
@@ -120,6 +131,8 @@ def insert(request):
                 oba.quantity=materItem['quantity']
                 oba.cartid=materItem["cartid"]
                 oba.save()
+
+
 
 
         del request.session['cartlist']
@@ -163,10 +176,18 @@ def status(request):
         return HttpResponse("N")
 
 def speak(request):
+    from csos.settings import SPEAK_PY_FILE,STATIC_AUDIO_FILE
     try:
         flow_num = request.GET.get("flow_num",-1)
         if flow_num!=-1:
-            queuing.play_audio(flow_num)
+            #线程池
+            # print(flow_num)
+            # with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            #     future = executor.submit(queuing.play_audio,flow_num)
+            #     print(future.result())
+            filepath=os.path.join(STATIC_AUDIO_FILE,str(flow_num)+".wav")
+            subprocess.Popen([sys.executable,SPEAK_PY_FILE,filepath],stdin = subprocess.PIPE, stdout=subprocess.PIPE)
+            # queuing.play_audio(flow_num)
         else:
             return HttpResponse("N")
         return HttpResponse("Y")

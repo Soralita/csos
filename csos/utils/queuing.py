@@ -1,16 +1,17 @@
 import concurrent.futures
+import sys
 import pyaudio as pa
 import wave
-import csos.settings
+
 MAX_WORKERS = 1  # 最大并发线程数
 
 # 语音播报
 def play_audio(text):
+    import csos.settings
     pre_path = csos.settings.STATIC_AUDIO_FILE
     p = pa.PyAudio()
-
-    filePath = pre_path + "/" + text + ".wav"
-
+    filePath = pre_path + "\\" + text + ".wav"
+    print(filePath)
     wf = wave.open(filePath, 'rb')
     wf_data = wf.readframes(wf.getnframes())
     stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
@@ -24,9 +25,25 @@ def play_audio(text):
         wf.close()
         p.terminate()
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        future = executor.submit(play)
-        future.result()
+    play()
+
+def play_audio_cmd(filepath):
+    p = pa.PyAudio()
+    wf = wave.open(filepath, 'rb')
+    wf_data = wf.readframes(wf.getnframes())
+    stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+                    channels=wf.getnchannels(),
+                    rate=wf.getframerate(),
+                    output=True)
+    def play():
+        stream.write(wf_data)
+        stream.stop_stream()
+        stream.close()
+        wf.close()
+        p.terminate()
+
+    play()
+
 
 def device_list():
     import pyaudio
@@ -44,7 +61,6 @@ def device_list():
 
 
 if __name__ == "__main__":
-    for i in range(10):
-        play_audio(str(i))
-        print("playing audio " + str(i))
-        # time.sleep(1)
+    # print(sys.argv)
+    play_audio_cmd(sys.argv[1])
+
