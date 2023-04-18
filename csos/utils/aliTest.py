@@ -1,4 +1,6 @@
+
 import qrcode
+
 from alipay import AliPay
 import time
 
@@ -28,9 +30,11 @@ alipay = AliPay(
     sign_type="RSA2", # RSA 或者 RSA2(具体要看你的密钥是什么类型)
     debug=False  # 默认False
 )
+
 print(alipay)
 
 out_trade_no = "out_trade_no_02"
+
 # 创建订单
 result = alipay.api_alipay_trade_precreate(
     subject="test subject",  # 订单标题
@@ -43,6 +47,7 @@ print(result)
 # 其中用qr_code生成二维码，支付宝扫描即可付款
 # 用qr_code生成二维码
 
+
 qr=qrcode.QRCode(version=5,
     error_correction=qrcode.constants.ERROR_CORRECT_L,
     box_size=10,
@@ -52,7 +57,6 @@ qr.add_data(result['qr_code'])
 qr.make(fit=True)
 img=qr.make_image()
 img.save('test.png')
-
 
 
 

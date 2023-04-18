@@ -15,7 +15,9 @@ from myadmin.models import Orders, OrderDetail, Product, Payment,BatchingDetail
 from myadmin.models import User, Category, Product
 
 from csos.utils import queuing
+
 from web.views.payment import pay_qrcode, pay_trade
+
 
 
 # Create your views here.

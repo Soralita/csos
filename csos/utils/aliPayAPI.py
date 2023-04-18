@@ -7,11 +7,11 @@ import base64
 import time
 
 
-
 # 支付宝API URL
 url = 'https://openapi.alipay.com/gateway.do'
 
 # 应用ID、商户号和私钥
+
 app_id = '2021003189630875'
 mch_id = 'YOUR_MCH_ID'
 private_key = open("应用私钥RSA2048.txt").read()
@@ -24,8 +24,6 @@ order_info = {
     'subject': 'Pycharm',
     'auth_code': auth_code,
 }
-
-
 
 # 生成签名
 def generate_sign(data, private_key):

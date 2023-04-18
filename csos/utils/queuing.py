@@ -1,6 +1,5 @@
 import concurrent.futures
 import sys
-
 import pyaudio as pa
 import wave
 
@@ -45,6 +44,7 @@ def play_audio_cmd(filepath):
 
     play()
 
+
 def device_list():
     import pyaudio
     p = pyaudio.PyAudio()
@@ -63,3 +63,4 @@ def device_list():
 if __name__ == "__main__":
     # print(sys.argv)
     play_audio_cmd(sys.argv[1])
+
