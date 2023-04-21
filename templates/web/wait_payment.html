@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>等待支付页面</title>
+  <style>
+    /* 添加 CSS 样式，实现提示框的样式 */
+    .payment-wait {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div class="payment-wait">
+    <p>请在支付宝中完成支付，支付完成后页面将自动跳转。</p>
+    <button id="query-payment">查询支付状态</button>
+
+  </div>
+  <div>
+          <input type="text" id="keyboard-input">
+   </div>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+  <script>
+    // 添加 JavaScript 代码，实现弹窗关闭和支付状态查询功能
+    var order_id = "{{ order_id }}";
+    var interval_id;
+    var barcode="";
+
+    function queryPayment() {
+      clearInterval(interval_id);  // 取消之前的定时器
+      // 向后台查询订单支付状态
+      $.ajax({
+        url: '/web/payment/query',
+        type: 'POST',
+        data: {order_id: order_id},
+        dataType: 'json',
+        success: function(data) {
+          if (data.status === 'success') {
+            // 如果支付成功，则关闭提示框，并显示支付成功的提示信息
+            clearInterval(interval_id);
+            $('.payment-wait').hide();
+            alert('支付成功！');
+          }
+        },
+        error: function() {
+          alert('查询订单支付状态失败！');
+        }
+      });
+    }
+
+    // 定时查询订单支付状态
+    interval_id = setInterval(function() {
+      queryPayment();
+    }, 5000);
+
+    // 监听查询支付状态按钮的点击事件
+    $('#query-payment').click(function() {
+      queryPayment();
+    });
+
+     $(document).ready(function() {
+            $(document).on('keydown', function(event) {
+ // Prevent the default behavior of the input field
+                event.preventDefault();
+                // Only handle numeric keys
+                if (event.keyCode >= 48 && event.keyCode <= 57) {
+                    // Add the key character to the input field
+                    barcode += String.fromCharCode(event.keyCode);
+                    // If the input field has reached the expected length of the barcode, submit the form
+                    if (barcode.length==18) {
+                        $.ajax({
+                            url: '/web/payment/pay_trade',
+                            method: 'POST',
+                            data: {
+                                'barcode':barcode,
+                                'order_id':order_id
+                            }
+                        });
+                        // Clear the input field
+
+                        barcode="";
+                    }
+                    console.log(barcode)
+                }
+            });
+        });
+
+
+  </script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 import concurrent
+import json
 import os
 import subprocess
 import sys
@@ -101,9 +102,6 @@ def insert(request):
         op.update_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         op.save()
 
-        # pay_qrcode(op)
-        pay_trade(op)
-
         #执行订单详情添加
         cartlist = request.session.get('cartlist',{})
         for item in cartlist.values():
@@ -132,16 +130,25 @@ def insert(request):
                 oba.cartid=materItem["cartid"]
                 oba.save()
 
-
-
-
         del request.session['cartlist']
         del request.session['total_money']
 
-        return HttpResponse("Y")
+        context = {
+            'order_id': od.id,
+        }
+        json_data=json.dumps(context)
+        # # return render(request, 'web/wait_payment.html', context)
+
+
+        return HttpResponse(json_data,content_type='application/json')
     except Exception as err:
         print(err)
         return HttpResponse("N")
+
+
+def check_payment(request):
+    pass
+
 
 def detail(request):
     """加载订单详情"""

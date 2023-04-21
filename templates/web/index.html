@@ -315,11 +315,16 @@
                 dataType:"text",
                 data:{ptype:ptype,bank:bank},
                 success:function (res){
-                    if(res=="Y"){
-                        alert("订单添加成功");
-                        window.location.href="{% url 'web_index' %}";
+                    if(res=="N"){
+                      alert("订单处理失败");
+
                     }else{
-                        alert("订单处理失败");
+                        // 创建 XMLHttpRequest 对象
+                        data=JSON.parse(res)
+                        console.log(data['order_id'])
+
+                       window.location='/web/payment/wait_payment/'+data['order_id']
+
                     }
 
                 }

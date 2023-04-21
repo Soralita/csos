@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from web.views import index, orders, batchings
+from web.views import index, orders, batchings, payment
 from web.views import cart
 
 urlpatterns = [
@@ -54,6 +54,14 @@ urlpatterns = [
         path('batching/buy',batchings.buy,name='web_batchings_buy'),
         path('batching/change',batchings.change,name='web_batchings_change'),
         path('batching/delete/<str:cart_id>/<int:batching_id>/',batchings.delete,name='web_batchings_delete'),
+
+
+        #Payment
+        path('payment/query', payment.query_payment, name='payment_quety'),
+        path('payment/keyboard_input', payment.keyboard_input, name='payment_keyboard_input'),
+        path('payment/pay_trade', payment.pay_trade, name='payment_pay_trade'),
+        path('payment/wait_payment/<int:pid>', payment.wait_payment, name='payment_wait_payment'),
+
 
     ]))
 ]

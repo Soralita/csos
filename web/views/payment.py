@@ -1,6 +1,11 @@
+import multiprocessing
 import os
 import subprocess
 import sys
+
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 
 BASE_DIR=r"C:\Users\Soral\PycharmProjects\csos"
 APP_ID="2021003189630875"
@@ -78,18 +83,23 @@ def pay_qrcode(op):
     img = qr.make_image()
     img.save(QRCODE_FILE)
 
-def pay_trade(op):
-    KEYBOARDLISTEN_FILE=os.path.join(BASE_DIR,"csos","utils","keyboardListen.py")
-    p=subprocess.Popen([sys.executable, KEYBOARDLISTEN_FILE], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+@csrf_exempt
+def pay_trade(request):
 
-    auth_code=p.stdout.read().decode("utf-8")
-    print(auth_code,type(auth_code))
+    # KEYBOARDLISTEN_FILE=os.path.join(BASE_DIR,"csos","utils","keyboardListen.py")
+    # p=subprocess.Popen([sys.executable, KEYBOARDLISTEN_FILE], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    # mp=multiprocessing.Process(target=wait_payment,args=(request,op.order_id))
+    # mp.start()
+    # mp.join()
+    # auth_code=p.stdout.read().decode("utf-8")
 
+
+    auth_code=request.POST.get('barcode')
+    order_id=request.POST.get('order_id')
     #获取 op 传入的Payment数据
-    out_trade_no = "payment_id_" + str(op.order_id)
+    out_trade_no = "payment_id_" + str(order_id)
     print(out_trade_no)
     total_amount = 0.01
-    # TODO 支付宝商品名修改
     subject_title = "支付宝接口测试调用"
 
 
@@ -103,7 +113,16 @@ def pay_trade(op):
 
     if result["code"] == "10000":
         print("Order is paid")
-    print(result)
+    if result["msg"]=="Success":
+        return render(request,"web/index.html")
+
+def wait_payment(request,pid):
+
+    order_id=pid
+    context = {
+        'order_id': order_id,
+    }
+    return render(request, 'web/wait_payment.html', context)
 
 def check_order_status(out_trade_no):
     # check order status
@@ -125,3 +144,26 @@ def check_order_status(out_trade_no):
         alipay.api_alipay_trade_cancel(out_trade_no=out_trade_no)
 
     return paid
+
+@csrf_exempt
+def query_payment(request):
+    order_id = request.POST.get('order_id')
+    out_trade_no = "payment_id_" + str(order_id)
+    result = alipay.api_alipay_trade_query(out_trade_no=out_trade_no)
+    print(result)
+    if result.get('trade_status') == 'TRADE_SUCCESS':
+        # 如果支付成功，则返回 success 标志
+        return JsonResponse({'status': 'success'})
+    else:
+        # 否则返回 fail 标志
+        return JsonResponse({'status': 'fail'})
+
+
+@csrf_exempt
+def keyboard_input(request):
+    if request.method == 'POST':
+        barcode=request.POST.get('barcode')
+        print(barcode)
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
